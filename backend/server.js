@@ -24,9 +24,28 @@ app.use(
 
 //!Routing
 //?Főoldal:
-router.get('/', (request, response) => {
+router.get('/elsoFeladat', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/index.html'));
 });
+
+router.get('/masodikFeladat', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/index2.html'));
+});
+
+//!fájlbaszás
+const fsSync = require('fs');
+const writeFileSync = () => {
+    let numbers = [];
+    for (let i = 0; i < 20; i++){
+        numbers.push(Math.floor(Math.random() * (50 - 1 + 1)) + 1);
+    }
+    fsSync.writeFileSync(
+        path.join(__dirname, '../backend/files/szamok.txt'),
+        numbers.join(','),
+        'utf8'
+    );
+};
+writeFileSync();
 
 //!API endpoints
 app.use('/', router);
