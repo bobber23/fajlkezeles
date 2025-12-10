@@ -164,6 +164,32 @@ router.get('/max', async (request, response) => {
       response.status(500).json({ error: 'Internal server error' });
     }
 });
+
+//? /api/rendezett
+router.get('/rendezett', async (request, response) => {
+    try {
+      const numbers = await readTextFile(path.join(__dirname, '../files/szamok.txt'));
+      let szamok = numbers.split(',').map(number => {
+        return parseInt(number);
+      });
+
+      let n = szamok.length;
+      for (let i = n-1 ; i > 0; i--) {
+        for (let j = 0; j < i; j++) {
+          if (szamok[j]>szamok[j+1]) {
+            let tmp = szamok[j];
+            szamok[j] = szamok[j+1];
+            szamok[j+1] = tmp;
+          }
+        }
+      }
+
+      response.status(200).json({ rendezett: szamok });
+    } catch (error) {
+      console.log('GET /api/readfile error:', error);
+      response.status(500).json({ error: 'Internal server error' });
+    }
+});
   
 
 module.exports = router;
