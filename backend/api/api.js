@@ -6,6 +6,7 @@ const fs = require('fs/promises');
 //!Multer
 const multer = require('multer'); //?npm install multer
 const path = require('path');
+const { console } = require('inspector');
 
 const storage = multer.diskStorage({
     destination: (request, file, callback) => {
@@ -189,6 +190,107 @@ router.get('/rendezett', async (request, response) => {
       console.log('GET /api/readfile error:', error);
       response.status(500).json({ error: 'Internal server error' });
     }
+});
+
+
+
+//? /api/getallstat
+const readJsonFile = async (filePath) => {
+  try {
+    const raw = await fs.readFile(filePath, 'utf8');
+    return JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`Olvasási hiba (json): ${error.message}`);
+  }
+};
+
+router.get('/getallstat', async (request, response) => {
+  try {
+    const data = await readJsonFile(path.join(__dirname, '../files/statisztika.json'));
+    response.status(200).json({ result: data });
+  } catch (error) {
+    console.log('GET /api/getallstat error:', error);
+    response.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//? /api/getstat/:telepaz
+router.get('/getstat/:telepaz', async (request, response) => {
+  try {
+    const azonosito = await request.params.telepaz;
+    const data = await readJsonFile(path.join(__dirname, '../files/statisztika.json'));
+    const result = data.telepules.find(t => t.telepaz === azonosito);
+
+    if (result) {
+      response.status(200).json({result});
+    }
+    else{
+      response.status(404).json({
+        errorMsg : "Nem található ilyen település azonosító!"
+      })
+    }
+  } catch (error) {
+    console.log('GET /api/getallstat error:', error);
+    response.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
+//? /barlangok
+
+router.get('/barlangok', async (request, response) => {
+  try {
+    const data = await readJsonFile(path.join(__dirname, '../files/barlangok.json'));
+    response.status(200).json({ result: data });
+  } catch (error) {
+    console.log('GET /api/getallstat error:', error);
+    response.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+router.get('/barlang/:azon', async (request, response) => {
+  try {
+    const barlangazon = request.params.azon;
+    const data2 = await readJsonFile(path.join(__dirname, '../files/barlangok.json'));
+    const result2 = data2.findIndex(t => {
+      return t.azon === barlangazon;
+    });
+
+    if (result2 !== -1) {
+      response.status(200).json({
+        result: data2[result2]
+      });
+    }
+    else{
+      response.status(404).json({
+        errorMsg : "Nem található ilyen barlang azonosító!"
+      })
+    }
+  } catch (error) {
+    console.log('GET /api/getallstat error:', error);
+    response.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+router.get('/stat', async (request, response) => {
+  try {
+    const data = await readJsonFile(path.join(__dirname, '../files/barlangok.json'));
+
+    
+
+    /*response.status(200).json({
+      result : data[1].nev
+    });*/
+  } catch (error) {
+    console.log('GET /api/getallstat error:', error);
+    response.status(500).json({ error: 'Internal server error' });
+  }
 });
   
 

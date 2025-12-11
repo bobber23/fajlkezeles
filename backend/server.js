@@ -32,6 +32,14 @@ router.get('/masodikFeladat', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/index2.html'));
 });
 
+router.get('/harmadikFeladat', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/index3.html'));
+});
+
+router.get('/negyedikFeladat', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/index4.html'));
+});
+
 //!fájlbaszás
 const fsSync = require('fs');
 const writeFileSync = () => {
