@@ -40,6 +40,10 @@ router.get('/negyedikFeladat', (request, response) => {
     response.sendFile(path.join(__dirname, '../frontend/html/index4.html'));
 });
 
+router.get('/otodikFeladat', (request, response) => {
+    response.sendFile(path.join(__dirname, '../frontend/html/index5.html'));
+});
+
 //!fájlbaszás
 const fsSync = require('fs');
 const writeFileSync = () => {

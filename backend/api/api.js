@@ -292,6 +292,55 @@ router.get('/stat', async (request, response) => {
     response.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+
+
+const JSON_PATH = path.join(__dirname, '../files/elemek.json');
+
+// Segédfüggvény a fájl beolvasásához
+const readData = () => {
+    try {
+        const data = fs.readFileSync(JSON_PATH, 'utf8');
+        return JSON.parse(data);
+    } catch (err) {
+        return null;
+    }
+};
+
+
+app.get('/api/getallelem', (req, res) => {
+  const data = readData();
+  if (data) {
+      res.status(200).json(data); // Sikeres válasz [cite: 28]
+  } else {
+      res.status(500).json({ error: "Fájl hiba" }); // Hiba esetén [cite: 29]
+  }
+});
+
+// Végpont: Ismeretlen felfedezési év (felfedezve: 0) [cite: 5, 6, 7]
+app.get('/api/ismeretlen', (req, res) => {
+  const data = readData();
+  if (data) {
+      const result = data.filter(e => e.felfedezve == 0);
+      res.status(200).json(result);
+  } else {
+      res.status(500).json({ error: "Fájl hiba" });
+  }
+});
+
+// Végpont: Keresés név alapján [cite: 8, 9]
+app.get('/api/getelem/:elemneve', (req, res) => {
+  const elemNeve = req.params.elemneve.toLowerCase();
+  const data = readData();
+  if (data) {
+      const result = data.find(e => e.elemneve.toLowerCase() === elemNeve);
+      res.status(200).json({ result: result || null });
+  } else {
+      res.status(500).json({ error: "Fájl hiba" });
+  }
+});
   
 
 module.exports = router;
