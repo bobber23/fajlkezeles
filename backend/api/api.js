@@ -296,51 +296,45 @@ router.get('/stat', async (request, response) => {
 
 
 
-
-const JSON_PATH = path.join(__dirname, '../files/elemek.json');
-
-// Segédfüggvény a fájl beolvasásához
-const readData = () => {
-    try {
-        const data = fs.readFileSync(JSON_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        return null;
-    }
-};
-
-
-app.get('/api/getallelem', (req, res) => {
-  const data = readData();
-  if (data) {
-      res.status(200).json(data); // Sikeres válasz [cite: 28]
-  } else {
-      res.status(500).json({ error: "Fájl hiba" }); // Hiba esetén [cite: 29]
+//Elemes baszás
+router.get('/getallelem', async (request, response) => {
+  try {
+    const data = await readJsonFile(path.join(__dirname, '../files/elemek.json'));
+    response.status(200).json({ result: data });
+  } catch (error) {
+    console.log('GET /api/getallelem error:', error);
+    response.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Végpont: Ismeretlen felfedezési év (felfedezve: 0) [cite: 5, 6, 7]
-app.get('/api/ismeretlen', (req, res) => {
-  const data = readData();
-  if (data) {
-      const result = data.filter(e => e.felfedezve == 0);
-      res.status(200).json(result);
-  } else {
-      res.status(500).json({ error: "Fájl hiba" });
+
+router.get('/ismeretlen', async (request, response) => {
+  try {
+    const data = await readJsonFile(path.join(__dirname, '../files/elemek.json'));
+    const result = data.felfedez.filter(t => t.felfedezve == 0);
+    response.status(200).json({result});
+  } catch (error) {
+    console.log('GET /api/ismeretlen error:', error);
+    response.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// Végpont: Keresés név alapján [cite: 8, 9]
-app.get('/api/getelem/:elemneve', (req, res) => {
-  const elemNeve = req.params.elemneve.toLowerCase();
-  const data = readData();
-  if (data) {
-      const result = data.find(e => e.elemneve.toLowerCase() === elemNeve);
-      res.status(200).json({ result: result || null });
-  } else {
-      res.status(500).json({ error: "Fájl hiba" });
+
+router.get('/getelem/:elemneve', async (request, response) => {
+  try {
+    const elemNeve = request.params.elemneve;
+    const data = await readJsonFile(path.join(__dirname, '../files/elemek.json'));
+    const result = data.felfedez.findIndex(t => {
+      return t.elemneve === elemNeve;
+    });
+
+    response.status(200).json({
+      result: data.felfedez[result]
+    });
+  } catch (error) {
+    console.log('GET /api/getelem/elemneve error:', error);
+    response.status(500).json({ error: 'Internal server error' });
   }
 });
-  
 
 module.exports = router;

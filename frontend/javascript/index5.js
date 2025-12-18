@@ -1,70 +1,68 @@
-const API_URL = "http://localhost:3000/api";
+document.addEventListener('DOMContentLoaded', ()=>{
+    fetchElemek();
+    tablazatGeneralas();
+});
 
-// Betöltéskor lefutó lekérdezések
-window.onload = () => {
-    getAllElem();
-    getIsmeretlen();
+const getMethodFetch = (url) => {
+    return fetch(url)
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`Hiba: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then((data) => {
+            return data;
+        })
+        .catch((error) => {
+            throw new Error(`Hiba történt: ${error.message}`);
+        });
 };
 
-// Minden elem lekérése konzolra
-async function getAllElem() {
+
+const fetchElemek = async () => {
     try {
-        const res = await fetch(`${API_URL}/getallelem`);
-        const data = await res.json();
-        console.log("Összes elem:", data);
-    } catch (err) {
-        console.error("Hiba a lekérdezés során:", err);
+        const data = await getMethodFetch ("http://127.0.0.1:3000/api/getallelem");
+        console.log(data.result.felfedez)
+    } catch (error) {
+        console.error('Hiba történt: ', error);
     }
-}
+};
 
-// Ismeretlen elemek táblázata
-async function getIsmeretlen() {
+const tablazatGeneralas = async () => {
     try {
-        const res = await fetch(`${API_URL}/ismeretlen`);
-        const data = await res.json();
-        renderTable(data, 'ismeretlenTableContainer');
-    } catch (err) {
-        alert("Hiba történt az ismeretlen elemek betöltésekor.");
-    }
-}
+        const data = await getMethodFetch (`http://127.0.0.1:3000/api/ismeretlen`);
+        const tableSpan = document.getElementById("tableSpan");
+        const table = document.createElement('table');
+        const sor1 = document.createElement('tr');
+        const sor2 = document.createElement('tr');
 
-// Keresés funkció
-async function kereses() {
-    const nev = document.getElementById('elemInput').value;
-    if (!nev) return;
+        console.log(Object.values(data.result[0]));
 
-    try {
-        const res = await fetch(`${API_URL}/getelem/${nev}`);
-        const data = await res.json();
-        if (data.result) {
-            renderTable([data.result], 'keresesEredmeny');
-        } else {
-            document.getElementById('keresesEredmeny').innerHTML = "Nincs találat.";
+        // for (let i = 0; i < Object.keys(data.result.length); i++) {
+        //     console.log(Object.keys(data.result[i]));
+        // }
+
+        for (let i = 0; i < Object.keys(data.result).length; i++) {
+            console.log(Object.keys(data.result[i]));
+            // const th = document.createElement('th');
+            // th.innerHTML = Object.keys(data.result)[0];
+            // sor1.appendChild(th);
         }
-    } catch (err) {
-        alert("Hiba a keresés során.");
-    }
-}
 
-// Táblázat generáló segédfüggvény
-function renderTable(data, containerId) {
-    let html = `<table class="table table-bordered text-center table-striped align-middle shadow-sm mt-3 w-50 mx-auto">
-        <thead>
-            <tr>
-                <th>rendszám</th><th>vegyjel</th><th>elemneve</th><th>felfedezve</th><th>gaz</th>
-            </tr>
-        </thead>
-        <tbody>`;
-    
-    data.forEach(e => {
-        html += `<tr>
-            <td>${e.rendszam}</td>
-            <td>${e.vegyjel}</td>
-            <td>${e.elemneve}</td>
-            <td>${e.felfedezve}</td>
-            <td>${e.gaz}</td>
-        </tr>`;
-    });
-    html += `</tbody></table>`;
-    document.getElementById(containerId).innerHTML = html;
+        // for (let i = 0; i < Object.values(data.result).length; i++) {
+        //     const td = document.createElement('td');
+        //     td.innerHTML = Object.values(data.result)[i];
+        //     sor2.appendChild(td);
+        // }
+
+        table.replaceChildren(sor1, sor2);
+        
+        table.setAttribute("class", "table table-bordered text-center table-striped align-middle shadow-sm mt-3 w-50 mx-auto");
+
+        tableSpan.replaceChildren(table);
+
+    } catch (error) {
+        console.error('Hiba történt: ', error);
+    }
 }
